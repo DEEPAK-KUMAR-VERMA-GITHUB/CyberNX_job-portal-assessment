@@ -15,7 +15,7 @@ export interface Application {
   id: string;
   jobId: string;
   userId: string;
-  status: 'pending' | 'reviewed' | 'rejected' | 'accepted';
+  status: "pending" | "reviewed" | "rejected" | "accepted";
   appliedDate: string;
   coverLetter: string;
   resume: string;
@@ -25,6 +25,12 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'employer' | 'jobseeker';
+  password: string;
+  role: "employer" | "jobseeker";
   company?: string;
+  status: "active" | "inactive";
+  createdAt: Date;
+  updatedAt: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpire?: Date;
 }
