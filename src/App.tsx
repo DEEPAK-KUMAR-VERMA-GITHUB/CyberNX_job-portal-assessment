@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthCheck from "./components/AuthCheck";
+import CreateJob from "./pages/CreateJob";
 
 function App() {
   const isDarkMode = useStore((state) => state.isDarkMode);
@@ -35,6 +36,14 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="employer">
                   <EmployerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employer/new-job"
+              element={
+                <ProtectedRoute requiredRole="employer">
+                  <CreateJob />
                 </ProtectedRoute>
               }
             />

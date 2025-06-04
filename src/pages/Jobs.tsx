@@ -155,11 +155,11 @@ function Jobs() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {jobs.map((job) => (
             <div
-              key={job.id}
+              key={job._id}
               className={`${
                 isDarkMode ? "bg-gray-800" : "bg-white"
               } p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition`}
-              onClick={() => navigate(`/jobs/${job.id}`)}
+              onClick={() => navigate(`/jobs/${job._id}`)}
             >
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-semibold">{job.title}</h2>

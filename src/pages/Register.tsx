@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 function Register() {
   const navigate = useNavigate();
   const isDarkMode = useStore((state) => state.isDarkMode);
-  const currentUser = useState((state) => state.currentUser);
   const [errors, setErrors] = useState({
     name: "",
     email: "",
@@ -17,12 +16,6 @@ function Register() {
     general: "",
   });
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (currentUser) {
-      navigate(`/${currentUser?.role}/dashboard`);
-    }
-  }, [currentUser, navigate]);
 
   const [formData, setFormData] = useState({
     name: "",
