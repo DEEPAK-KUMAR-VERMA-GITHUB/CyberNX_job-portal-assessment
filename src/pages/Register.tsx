@@ -20,7 +20,7 @@ function Register() {
 
   useEffect(() => {
     if (currentUser) {
-      navigate(`/${currentUser.role}/dashboard`);
+      navigate(`/${currentUser?.role}/dashboard`);
     }
   }, [currentUser, navigate]);
 

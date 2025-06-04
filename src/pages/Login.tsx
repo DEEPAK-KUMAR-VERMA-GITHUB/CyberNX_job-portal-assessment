@@ -81,7 +81,7 @@ function Login() {
       setLoading(false);
     } catch (err) {
       const errorMessage =
-        err.response?.data?.message || "Registration failed. Please try again.";
+        err.response?.data?.message || "Login failed. Please try again.";
 
       // Show toast error
       toast.error(errorMessage);

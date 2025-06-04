@@ -3,12 +3,14 @@ export interface Job {
   title: string;
   company: string;
   location: string;
-  type: string;
+  type: "full-time" | "part-time" | "contract" | "internship" | "remote";
   salary: string;
   description: string;
   requirements: string[];
-  postedDate: string;
   category: string;
+  postedDate: string;
+  employer: string | User;
+  status: "active" | "closed";
 }
 
 export interface Application {

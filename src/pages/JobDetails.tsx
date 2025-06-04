@@ -1,88 +1,142 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { MapPin, Building2, Clock, BriefcaseIcon, Send } from 'lucide-react';
-import { useStore } from '../store';
-import { dummyJobs } from '../data';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Briefcase,
+  MapPin,
+  Calendar,
+  DollarSign,
+  Building,
+} from "lucide-react";
+import { jobService } from "../services/job.service";
+import { Job } from "../types";
+import { useStore } from "../store";
+import { toast } from "react-toastify";
 
 function JobDetails() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const isDarkMode = useStore((state) => state.isDarkMode);
   const currentUser = useStore((state) => state.currentUser);
-  
-  const job = dummyJobs.find(j => j.id === id);
-  
+  const [job, setJob] = useState<Job | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (id) {
+      fetchJobDetails(id);
+    }
+  }, [id]);
+
+  const fetchJobDetails = async (jobId: string) => {
+    setLoading(true);
+    try {
+      const response = await jobService.getJobById(jobId);
+      setJob(response.job);
+    } catch (error) {
+      toast.error("Failed to load job details");
+      navigate("/jobs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-10">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   if (!job) {
-    return <div>Job not found</div>;
+    return (
+      <div className="text-center py-10">
+        <h2 className="text-2xl font-bold mb-4">Job not found</h2>
+        <button
+          onClick={() => navigate("/jobs")}
+          className="flex items-center text-blue-600 hover:underline"
+        >
+          <ArrowLeft size={20} className="mr-2" />
+          Back to Jobs
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md p-8 mb-8`}>
+    <div>
+      <button
+        onClick={() => navigate("/jobs")}
+        className="flex items-center text-blue-600 hover:underline mb-6"
+      >
+        <ArrowLeft size={20} className="mr-2" />
+        Back to Jobs
+      </button>
+
+      <div
+        className={`${
+          isDarkMode ? "bg-gray-800" : "bg-white"
+        } rounded-lg shadow-md p-6 mb-6`}
+      >
         <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-4">{job.title}</h1>
-            <div className="flex items-center text-gray-500 mb-4">
-              <Building2 className="w-5 h-5 mr-2" />
-              <span className="mr-4">{job.company}</span>
-              <MapPin className="w-5 h-5 mr-2" />
-              <span>{job.location}</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className={`px-4 py-2 rounded-full text-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                {job.type}
-              </span>
-              <span className={`px-4 py-2 rounded-full text-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                {job.category}
-              </span>
-            </div>
+          <h1 className="text-3xl font-bold">{job.title}</h1>
+          <span
+            className={`px-3 py-1 rounded-full text-xs ${
+              job.type === "full-time"
+                ? "bg-green-100 text-green-800"
+                : job.type === "part-time"
+                ? "bg-blue-100 text-blue-800"
+                : job.type === "contract"
+                ? "bg-purple-100 text-purple-800"
+                : job.type === "internship"
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-indigo-100 text-indigo-800"
+            }`}
+          >
+            {job.type.replace("-", " ")}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="flex items-center">
+            <Building size={20} className="mr-2 text-gray-500" />
+            <span>{job.company}</span>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600 mb-2">{job.salary}</div>
-            <div className="flex items-center text-gray-500">
-              <Clock className="w-5 h-5 mr-2" />
-              <span>Posted {job.postedDate}</span>
-            </div>
+          <div className="flex items-center">
+            <MapPin size={20} className="mr-2 text-gray-500" />
+            <span>{job.location}</span>
+          </div>
+          <div className="flex items-center">
+            <DollarSign size={20} className="mr-2 text-gray-500" />
+            <span>{job.salary}</span>
+          </div>
+          <div className="flex items-center">
+            <Calendar size={20} className="mr-2 text-gray-500" />
+            <span>
+              Posted on {new Date(job.postedDate).toLocaleDateString()}
+            </span>
           </div>
         </div>
 
-        {currentUser?.role === 'jobseeker' && (
-          <button className="w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center">
-            <Send className="w-5 h-5 mr-2" />
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">Job Description</h2>
+          <p className="whitespace-pre-line">{job.description}</p>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-3">Requirements</h2>
+          <ul className="list-disc pl-5 space-y-2">
+            {job.requirements.map((req, index) => (
+              <li key={index}>{req}</li>
+            ))}
+          </ul>
+        </div>
+
+        {currentUser?.role === "jobseeker" && (
+          <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
             Apply Now
           </button>
         )}
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2">
-          <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md p-8 mb-8`}>
-            <h2 className="text-2xl font-bold mb-4">Job Description</h2>
-            <p className="mb-6 whitespace-pre-line">{job.description}</p>
-
-            <h3 className="text-xl font-bold mb-4">Requirements</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              {job.requirements.map((req, index) => (
-                <li key={index}>{req}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md p-8`}>
-            <h2 className="text-xl font-bold mb-4">Company Overview</h2>
-            <div className="flex items-center mb-4">
-              <Building2 className="w-12 h-12 text-blue-600 mr-4" />
-              <div>
-                <h3 className="font-semibold">{job.company}</h3>
-                <p className="text-gray-500">{job.location}</p>
-              </div>
-            </div>
-            <p className="text-gray-500">
-              Leading technology company specializing in innovative solutions...
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
