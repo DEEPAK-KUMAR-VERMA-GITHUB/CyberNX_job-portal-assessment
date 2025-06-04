@@ -26,4 +26,21 @@ export const userService = {
     const response = await api.post("/users/login", { email, password });
     return response.data;
   },
+
+  logout: async (): Promise<{ success: boolean; message: string }> => {
+    const response = await api.post("/users/logout");
+    return response.data;
+  },
+
+  getCurrentUser: async (): Promise<{
+    success: boolean;
+    user: User;
+  } | null> => {
+    try {
+      const response = await api.get("/users/me");
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  },
 };

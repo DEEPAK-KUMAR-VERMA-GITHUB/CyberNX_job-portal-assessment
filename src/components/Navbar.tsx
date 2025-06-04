@@ -14,6 +14,8 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
+      await userService.logout();
+
       // Clear user from store
       setCurrentUser(null);
 

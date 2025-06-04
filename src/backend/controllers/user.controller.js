@@ -73,3 +73,24 @@ export const login = catchAsyncErrors(async (req, res, next) => {
     token,
   });
 });
+
+export const logout = catchAsyncErrors(async (req, res, next) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
+  });
+});
+
+export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
+  const user = await UserModel.findById(req.user.id);
+
+  return res.status(200).json({
+    success: true,
+    user,
+  });
+});

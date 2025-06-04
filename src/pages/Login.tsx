@@ -1,5 +1,5 @@
 import { LogIn } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { userService } from "../services/user.service";
@@ -8,6 +8,7 @@ import { useStore } from "../store";
 function Login() {
   const navigate = useNavigate();
   const isDarkMode = useStore((state) => state.isDarkMode);
+  const currentUser = useStore((state) => state.currentUser);
   const setCurrentUser = useStore((state) => state.setCurrentUser);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,6 +20,12 @@ function Login() {
     password: "",
     general: "",
   });
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate(`/${currentUser.role}/dashboard`);
+    }
+  }, [currentUser, navigate]);
 
   const validateForm = () => {
     const newErrors = {

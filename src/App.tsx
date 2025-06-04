@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AuthCheck from "./components/AuthCheck";
 
 function App() {
   const isDarkMode = useStore((state) => state.isDarkMode);
@@ -22,6 +23,7 @@ function App() {
       }`}
     >
       <BrowserRouter>
+        <AuthCheck />
         <Navbar />
         <main className="container mx-auto px-4 py-8">
           <Routes>
