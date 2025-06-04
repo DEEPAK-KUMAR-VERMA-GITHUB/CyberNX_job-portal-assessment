@@ -6,6 +6,7 @@ import { DbConnect } from "./config/dbConfig.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import jobRoutes from "./routes/job.route.js";
+import applicationRoutes from "./routes/application.route.js";
 
 dotenv.config();
 await DbConnect();
@@ -28,6 +29,7 @@ app.use(cookieParser());
 // routes
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/jobs", jobRoutes);
+app.use("/api/v1/applications", applicationRoutes);
 
 app.use(errorMiddleware);
 

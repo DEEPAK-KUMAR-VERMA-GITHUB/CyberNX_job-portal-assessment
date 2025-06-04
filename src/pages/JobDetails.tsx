@@ -12,6 +12,8 @@ import { jobService } from "../services/job.service";
 import { Job } from "../types";
 import { useStore } from "../store";
 import { toast } from "react-toastify";
+import { applicationService } from "../services/application.service";
+import JobApplicationModal from "../components/JobApplicationModal";
 
 function JobDetails() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +22,30 @@ function JobDetails() {
   const currentUser = useStore((state) => state.currentUser);
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
+
+  // check if user has already applied for the job
+  const checkIfApplied = async (jobId: string) => {
+    try {
+      const response = await applicationService.getUserApplications();
+      const applied = response.applications.some((application) =>
+        typeof application.jobId === "object"
+          ? application.job._id.toString() === jobId
+          : application.jobId === jobId
+      );
+      setHasApplied(applied);
+    } catch (error) {
+      console.error("Error checking application status:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (id && currentUser?.role === "jobseeker") {
+      checkIfApplied(id);
+    }
+  }, [id, currentUser]);
 
   useEffect(() => {
     if (id) {
@@ -133,11 +159,28 @@ function JobDetails() {
         </div>
 
         {currentUser?.role === "jobseeker" && (
-          <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition">
-            Apply Now
+          <button
+            onClick={() => setShowApplicationModal(true)}
+            disabled={hasApplied}
+            className={`w-full py-3 rounded-lg transition ${
+              hasApplied
+                ? "bg-green-600 text-white cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            {hasApplied ? "Already Applied" : "Apply Now"}
           </button>
         )}
       </div>
+
+      {showApplicationModal && (
+        <JobApplicationModal
+          jobId={job._id.toString()}
+          jobTitle={job.title}
+          onClose={() => setShowApplicationModal(false)}
+          onSuccess={() => setHasApplied(true)}
+        />
+      )}
     </div>
   );
 }
