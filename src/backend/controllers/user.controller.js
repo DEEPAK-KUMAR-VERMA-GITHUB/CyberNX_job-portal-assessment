@@ -36,3 +36,40 @@ export const register = catchAsyncErrors(async (req, res, next) => {
     user,
   });
 });
+
+export const login = catchAsyncErrors(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(ErrorHandler.badRequest("Please fill all fields"));
+  }
+
+  // check if user exists with this email
+  const user = await UserModel.findOne({ email }).select("+password");
+  if (!user) {
+    return next(ErrorHandler.notFound("User not found"));
+  }
+
+  // check if password is correct
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    return next(ErrorHandler.badRequest("Invalid credentials"));
+  }
+
+  // generate token
+  const token = user.getJwtToken();
+
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  return res.status(200).cookie("token", token, cookieOptions).json({
+    success: true,
+    message: "User logged in successfully",
+    user,
+    token,
+  });
+});

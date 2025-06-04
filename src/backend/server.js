@@ -4,6 +4,7 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import userRoutes from "./routes/user.route.js";
 import { DbConnect } from "./config/dbConfig.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 await DbConnect();
@@ -21,6 +22,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // routes
 app.use("/api/v1/users", userRoutes);

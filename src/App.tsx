@@ -10,6 +10,7 @@ import JobSeekerDashboard from "./pages/JobSeekerDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { ToastContainer } from "react-toastify";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const isDarkMode = useStore((state) => state.isDarkMode);
@@ -27,10 +28,21 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/:id" element={<JobDetails />} />
-            <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+            <Route
+              path="/employer/dashboard"
+              element={
+                <ProtectedRoute requiredRole="employer">
+                  <EmployerDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/jobseeker/dashboard"
-              element={<JobSeekerDashboard />}
+              element={
+                <ProtectedRoute requiredRole="jobseeker">
+                  <JobSeekerDashboard />
+                </ProtectedRoute>
+              }
             />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
