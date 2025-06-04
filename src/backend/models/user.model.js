@@ -1,8 +1,7 @@
-import mongoose, { Model } from "mongoose";
-import { User } from "../types";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
-const userModel = new mongoose.Schema<User, Model<User>>(
+const userModel = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -12,7 +11,7 @@ const userModel = new mongoose.Schema<User, Model<User>>(
       maxlength: [50, "Name must be less than 50 characters long"],
       capitalize: true,
       validate: {
-        validator: function (value: string) {
+        validator: function (value) {
           return /^[a-zA-Z\s]+$/.test(value);
         },
         message: "Name must be a string",
@@ -25,7 +24,7 @@ const userModel = new mongoose.Schema<User, Model<User>>(
       unique: true,
       lowercase: true,
       validate: {
-        validator: function (value: string) {
+        validator: function (value) {
           return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
         },
         message: "Email must be a valid email address",
@@ -37,8 +36,9 @@ const userModel = new mongoose.Schema<User, Model<User>>(
       trim: true,
       minlength: [8, "Password must be at least 8 characters long"],
       maxlength: [50, "Password must be less than 50 characters long"],
+      select: false,
       validate: {
-        validator: function (value: string) {
+        validator: function (value) {
           return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
             value
           );
@@ -62,7 +62,7 @@ const userModel = new mongoose.Schema<User, Model<User>>(
       minlength: [3, "Company must be at least 3 characters long"],
       maxlength: [50, "Company must be less than 50 characters long"],
       validate: {
-        validator: function (value: string) {
+        validator: function (value) {
           if (this.role === "employer") {
             return /^[a-zA-Z\s]+$/.test(value);
           } else return true;
@@ -72,11 +72,11 @@ const userModel = new mongoose.Schema<User, Model<User>>(
     },
     status: {
       type: String,
-      required: true,
       enum: {
         values: ["active", "inactive"],
         message: "Status must be either active or inactive",
       },
+      default: "active",
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -102,9 +102,9 @@ userModel.pre("save", async function (next) {
 });
 
 // function to compare password
-userModel.methods.comparePassword = async function (password: string) {
+userModel.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-const UserModel = mongoose.model<User>("User", userModel);
+const UserModel = mongoose.model("User", userModel);
 export default UserModel;
